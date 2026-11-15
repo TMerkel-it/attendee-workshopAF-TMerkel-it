@@ -16,3 +16,20 @@ var apiKey = configuration["OpenAI:ApiKey"] ?? throw new InvalidOperationExcepti
 
 Console.WriteLine($"Model: {model}");
 Console.WriteLine($"Endpoint: {endpoint}");
+
+var client = new ChatCompletionsClient(
+    new Uri(endpoint),
+    new AzureKeyCredential(apiKey),
+    new AzureAIInferenceClientOptions());
+
+var requestOptions = new ChatCompletionsOptions()
+{
+    Model = model,
+    Messages =
+    [
+        new ChatRequestUserMessage("What are concerts and artists that are popular in Orlando. Make it short and concise")
+    ]
+};
+
+var response = await client.CompleteAsync(requestOptions);
+Console.WriteLine(response.Value.Content);

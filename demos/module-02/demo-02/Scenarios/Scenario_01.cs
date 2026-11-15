@@ -1,6 +1,7 @@
 ﻿using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using OpenAI.Responses;
+using System.Text.Json;
 #pragma warning disable OPENAI001 // The pinned SDK marks the Responses API as experimental.
 
 namespace AgentFramework101.Scenarios;
@@ -35,7 +36,7 @@ internal static class Scenario_01
         //    MaxOutputTokens = 500
         //});
 
-        //AgentSession session = await agent.CreateSessionAsync();
+        AgentSession session = await agent.CreateSessionAsync();
 
         while (true)
         {
@@ -52,20 +53,20 @@ internal static class Scenario_01
             Console.Write(response.Text);
 
             #region Session contents
-            //var serialized = await agent.SerializeSessionAsync(session);
-            //var sessionJson = JsonSerializer.Serialize(serialized, new JsonSerializerOptions { WriteIndented = true });
-            //Console.WriteLine(sessionJson);
+            var serialized = await agent.SerializeSessionAsync(session);
+            var sessionJson = JsonSerializer.Serialize(serialized, new JsonSerializerOptions { WriteIndented = true });
+            Console.WriteLine(sessionJson);
             #endregion
 
             #region Structured responses
             // synchronous structured response:
-            //var structuredResponse = await agent.RunAsync<TicketSummary>(prompt, session);
-            //Console.WriteLine($"Ticket number: {structuredResponse.Result.TicketNumber}");
-            //Console.WriteLine($"Artist: {structuredResponse.Result.Artist}");
-            //Console.WriteLine($"Title: {structuredResponse.Result.Title}");
-            //Console.WriteLine($"Venue: {structuredResponse.Result.Venue}");
-            //Console.WriteLine($"Description: {structuredResponse.Result.Description}");
-            //Console.WriteLine($"Date: {structuredResponse.Result.Date}");
+            var structuredResponse = await agent.RunAsync<TicketSummary>(prompt, session);
+            Console.WriteLine($"Ticket number: {structuredResponse.Result.TicketNumber}");
+            Console.WriteLine($"Artist: {structuredResponse.Result.Artist}");
+            Console.WriteLine($"Title: {structuredResponse.Result.Title}");
+            Console.WriteLine($"Venue: {structuredResponse.Result.Venue}");
+            Console.WriteLine($"Description: {structuredResponse.Result.Description}");
+            Console.WriteLine($"Date: {structuredResponse.Result.Date}");
             #endregion
 
             Console.WriteLine();

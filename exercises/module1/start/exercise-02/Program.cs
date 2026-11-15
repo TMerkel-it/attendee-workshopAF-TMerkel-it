@@ -17,3 +17,32 @@ var apiKey = configuration["OpenAI:ApiKey"] ?? throw new InvalidOperationExcepti
 
 Console.WriteLine($"Model: {model}");
 Console.WriteLine($"Endpoint: {endpoint}");
+
+var httpClient = new HttpClient(new LoggingHandler(new HttpClientHandler()));
+
+httpClient.DefaultRequestHeaders.Add("api-key", apiKey);
+httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+var requestBody = new
+{
+    model,
+    messages = new[]
+    {
+        new
+        {
+            role = "user",
+            content = "What is the weather in Orlando?"
+        }
+    },
+    max_completion_tokens = 500
+};
+
+using var content = new StringContent(
+    JsonSerializer.Serialize(requestBody),
+    Encoding.UTF8,
+    "application/json");
+
+using var response = await httpClient.PostAsync(endpoint, content);
+var responseBody = await response.Content.ReadAsStringAsync();
+
+response.EnsureSuccessStatusCode();
