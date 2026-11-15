@@ -1,0 +1,6 @@
+@model GloboTicket.Frontend.Models.Api.OrderReceipt
+
+<h1>Simulated order recorded</h1>
+<p>Order reference: <strong>@Model.OrderId</strong></p>
+<p>Quote: @Model.Quote.QuoteId. Total: USD @Model.Quote.Total.ToString("F2").</p>
+<p>@Model.Status</p>

@@ -1,0 +1,56 @@
+﻿using System.ClientModel;
+using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Configuration;
+using Module04.Demo05.Agents;
+using Module04.Demo05.Orchestration;
+using OpenAI.Responses;
+#pragma warning disable OPENAI001 // The pinned SDK marks the Responses API as experimental.
+
+Console.OutputEncoding = System.Text.Encoding.UTF8; // Ensure proper encoding for console output, especially for special characters.
+
+var config = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddUserSecrets<Program>()
+        .AddEnvironmentVariables()
+        .Build();
+
+string model = config["OpenAI:Model"] ?? throw new InvalidOperationException("OpenAI:Model is not configured.");
+string endpoint = config["OpenAI:EndPoint"] ?? throw new InvalidOperationException("OpenAI:EndPoint is not configured.");
+string token = config["OpenAI:ApiKey"] ?? throw new InvalidOperationException("OpenAI:ApiKey is not configured.");
+
+var responsesClient = new OpenAI.OpenAIClient(
+        new ApiKeyCredential(token),
+        new OpenAI.OpenAIClientOptions { Endpoint = new Uri(new Uri(endpoint), "openai/v1/") })
+        .GetResponsesClient();
+
+AIAgent ticketAgent = TicketReaderAgent.Create(responsesClient, model);
+AIAgent hotelAgent = HotelBookingAgent.Create(responsesClient, model);
+AIAgent rideAgent = RideBookingAgent.Create(responsesClient, model);
+AIAgent itineraryAgent = ItineraryDocumentAgent.Create(responsesClient, model);
+AIAgent concierge = TravelConciergeAgent.Create(
+        responsesClient,
+        model,
+        [ticketAgent.AsAIFunction(), hotelAgent.AsAIFunction(), rideAgent.AsAIFunction(), itineraryAgent.AsAIFunction()]);
+
+string pattern = "tools"; // tools, groupchat
+string question = """
+        I have tickets to Martin Garrix. The ticket PDF is here:
+        https://github.com/vriesmarcel/vslive-2026-vegas-sk/blob/main/CT4EB6AF_mobile_267842.pdf
+        Read the ticket, find a hotel and ride, and ask me before booking.
+        """;
+
+Console.WriteLine($"Orchestration pattern: {pattern}");
+switch (pattern)
+{
+        case "tools":
+                await AgentsAsToolsOrchestration.RunAsync(concierge, question);
+                break;
+          case "groupchat":
+                AIAgent groupChatConcierge = TravelConciergeAgent.CreateForGroupChat(responsesClient, model);
+                await GroupChatOrchestration.RunAsync(question, ticketAgent, hotelAgent, rideAgent, groupChatConcierge);
+                break;
+        default:
+                throw new ArgumentException("Choose one of: tools, sequential, groupchat.", nameof(args));
+}

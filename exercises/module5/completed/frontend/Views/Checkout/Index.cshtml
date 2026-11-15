@@ -1,0 +1,28 @@
+@model GloboTicket.Frontend.Models.View.CheckoutViewModel
+
+<h2>Simulated checkout</h2>
+<p class="alert alert-info">Workshop demo: use a fictitious name and email. No payment, email, seat reservation or ticket issuance.</p>
+@foreach (var line in Model.Quote.Lines)
+{
+    <p>@line.EventName: @line.TicketCount ticket(s) at USD @line.UnitPrice.ToString("F2")</p>
+}
+<dl>
+    <dt>Subtotal</dt><dd>USD @Model.Quote.Subtotal.ToString("F2")</dd>
+    <dt>Discount</dt><dd>USD @Model.Quote.Discount.ToString("F2")</dd>
+    <dt>Administration fee</dt><dd>USD @Model.Quote.AdministrationFee.ToString("F2")</dd>
+    <dt>Total</dt><dd><strong>USD @Model.Quote.Total.ToString("F2")</strong></dd>
+</dl>
+<p>Quote @Model.QuoteId expires at @Model.Quote.ExpiresAt.ToString("u"). Submission approves this exact quote.</p>
+<form asp-action="Purchase" method="post">
+    <input asp-for="QuoteId" type="hidden" />
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Name">Fictitious customer name</label>
+        <input class="form-control" asp-for="Name" autocomplete="off" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Email">Demo email (for example demo@example.test)</label>
+        <input class="form-control" asp-for="Email" autocomplete="off" />
+    </div>
+    <button type="submit" class="btn btn-primary">Approve and submit simulated order</button>
+</form>

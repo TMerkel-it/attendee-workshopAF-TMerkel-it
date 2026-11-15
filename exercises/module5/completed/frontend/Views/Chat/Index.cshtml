@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Chat Support";
+}
+
+<link rel="stylesheet" href="~/css/chat.css" />
+<link rel="stylesheet" href="~/js/agui-chat.css" />
+
+<section class="chat-shell" aria-labelledby="chat-title">
+    <header class="chat-heading">
+        <h1 id="chat-title">GloboTicket assistant</h1>
+    </header>
+
+    <div id="aguiWorkspace" class="agui-workspace">
+        <div class="agui-frame">
+            <div id="agUiChatRoot" class="agui-chat-root">
+                <div class="agui-loading" role="status">Loading chat...</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="~/js/agui-chat.js"></script>

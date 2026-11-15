@@ -1,0 +1,30 @@
+@model IEnumerable<GloboTicket.Frontend.Models.View.BasketLineViewModel>
+@{
+    var quote = (GloboTicket.Frontend.Models.Api.OrderQuote)ViewBag.OrderQuote;
+}
+
+<h2>Shopping basket</h2>
+<p>Workshop demo: no payment or seat reservation. Prices are quoted by ordering using current catalog data.</p>
+<table class="table">
+    <thead>
+        <tr><th>EVENT NAME</th><th>DATE</th><th>VENUE</th><th>PRICE PER TICKET</th><th>QUANTITY</th><th>TOTAL</th><th></th></tr>
+    </thead>
+    <tbody>@Html.EditorForModel()</tbody>
+</table>
+<a asp-controller="EventCatalog" asp-action="Index">Back to event catalog</a>
+@if (quote is not null)
+{
+    <dl>
+        <dt>Subtotal</dt><dd>USD @quote.Subtotal.ToString("F2")</dd>
+        <dt>Discount (@quote.PromoCode)</dt><dd>USD @quote.Discount.ToString("F2")</dd>
+        <dt>Administration fee</dt><dd>USD @quote.AdministrationFee.ToString("F2")</dd>
+        <dt>Total</dt><dd><strong>USD @quote.Total.ToString("F2")</strong></dd>
+    </dl>
+    <form asp-action="ApplyPromoCode" method="post" class="form-inline">
+        <label for="promoCode">Promo code</label>
+        <input type="text" name="promoCode" id="promoCode" class="form-control mx-2" value="@quote.PromoCode" />
+        <button type="submit" class="btn btn-secondary">Apply</button>
+        <small class="form-text text-muted">SAVE10, SAVE15, SAVE25. Leave empty to remove.</small>
+    </form>
+    <a asp-controller="Checkout" asp-action="Index" class="btn btn-primary mt-3">Review checkout quote</a>
+}
